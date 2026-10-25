@@ -1,0 +1,19 @@
+node_modules/
+.next/
+out/
+coverage/
+*.tsbuildinfo
+.env*
+!.env.local.example
+npm-debug.log*
+.DS_Store
+supabase/.temp/
+supabase/.branches/
+.vercel/
+
+.vercel
+.env*
+
+# Local performance reports can contain private chat URLs and content.
+performance/*.json
+performance/*.png

@@ -1,0 +1,43 @@
+[
+  {
+    "name": "Mobile search expands with keyboard and keeps its form in the viewport",
+    "pass": true
+  },
+  {
+    "name": "Dashboard arrows move the selected tab and accepted request reveals chat",
+    "pass": true
+  },
+  {
+    "name": "Chat handover expands, downloads a PNG, and preserves composer space",
+    "pass": true
+  },
+  {
+    "name": "Chat report dialog traps keyboard focus and Escape restores its opener",
+    "pass": true
+  },
+  {
+    "name": "Attachment preview wraps, traps focus, and returns to paperclip on Escape",
+    "pass": true
+  },
+  {
+    "name": "Reduced-height chat viewport keeps composer inside the visible area",
+    "pass": true
+  },
+  {
+    "name": "First-post pulse expires and does not replay when motion preference changes",
+    "pass": true
+  },
+  {
+    "name": "Reduced motion disables hero, route, pulse, spinner, skeleton and counter motion",
+    "pass": true
+  },
+  {
+    "name": "Primary press has a small scale and releases; preference toggle cancels a counter tween",
+    "pass": true
+  },
+  {
+    "name": "Browser page errors",
+    "errors": [],
+    "pass": true
+  }
+]

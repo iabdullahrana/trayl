@@ -1,0 +1,521 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-slate-50 text-slate-900 antialiased;
+}
+
+@layer base {
+  :where(
+    a,
+    button,
+    input,
+    select,
+    textarea,
+    summary,
+    [tabindex]
+  ):focus-visible {
+    outline: 2px solid var(--focus-ring, var(--deep));
+    outline-offset: 3px;
+  }
+  :where(a, button, [role="button"], summary) {
+    min-inline-size: 44px;
+    min-block-size: 44px;
+  }
+  button:disabled {
+    cursor: wait;
+  }
+  :where(h1, h2, h3, p, dd) {
+    overflow-wrap: anywhere;
+  }
+}
+
+/* Foundation tokens are opt-in until existing pages are migrated. */
+@layer base {
+  :root {
+    --ink: #0e1512;
+    --paper: #f7f8f4;
+    --signal: #27c285;
+    --deep: #123524;
+    --sage: #6a746e;
+    --sage-on-paper: #6a746e;
+    --sage-on-paper-rgb: 106 116 110;
+    --sage-on-ink: #9ca6a0;
+    --sage-on-ink-rgb: 156 166 160;
+    --amber: #e8b23d;
+    --danger: #c0342a;
+    /* Channel values support Tailwind opacity modifiers, e.g. border-sage/20. */
+    --ink-rgb: 14 21 18;
+    --paper-rgb: 247 248 244;
+    --signal-rgb: 39 194 133;
+    --deep-rgb: 18 53 36;
+    --sage-rgb: 106 116 110;
+    --amber-rgb: 232 178 61;
+    --danger-rgb: 192 52 42;
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-6: 1.5rem;
+    --space-8: 2rem;
+    --space-12: 3rem;
+    --space-16: 4rem;
+    --radius-control: 0.25rem;
+    --radius-card: 0.75rem;
+    --type-display: clamp(2.5rem, 6vw, 4.5rem);
+    --leading-display: 1.05;
+    --type-h1: clamp(2rem, 4vw, 3rem);
+    --leading-h1: 1.1;
+    --type-h2: 1.5rem;
+    --leading-h2: 1.25;
+    --type-body: 1rem;
+    --leading-body: 1.5;
+    --type-small: 0.875rem;
+    --leading-small: 1.5;
+    --type-mono-data: 0.875rem;
+    --leading-mono-data: 1.4;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Only the guest landing page escapes the shared application content frame. */
+#main-content:has(> .landing-page) {
+  max-width: none;
+  padding: 0;
+}
+
+@layer components {
+  .landing-input {
+    @apply min-h-12 w-full min-w-0 max-w-full rounded-control border border-deep/30 bg-paper px-space-3 py-space-3 text-body font-normal text-ink placeholder:text-deep/70 focus-visible:outline-deep;
+  }
+}
+
+.hero-route-stub {
+  color: var(--paper);
+}
+.hero-route-stub > [aria-hidden="true"] {
+  color: var(--signal);
+}
+.hero-route-stub > [aria-hidden="true"] > span {
+  border-color: var(--signal);
+}
+
+/* One departure-board sequence: last letter locks at 856ms, line at 1220ms.
+   Fixed-size clipped cells and transform-only strips avoid layout per frame. */
+.split-flap-letters {
+  display: inline-flex;
+  vertical-align: bottom;
+}
+.split-flap-cell {
+  position: relative;
+  display: inline-block;
+  width: 1ch;
+  height: 1.4em;
+  overflow: hidden;
+}
+.split-flap-cell::after {
+  content: "";
+  position: absolute;
+  inset: 50% 0 auto;
+  border-top: 1px solid currentColor;
+  opacity: 0.12;
+  pointer-events: none;
+}
+.split-flap-strip {
+  display: block;
+  transform: translateY(0);
+}
+.split-flap-frame {
+  display: block;
+  height: 1.4em;
+  line-height: 1.4;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .split-flap-strip {
+    animation: departure-flap 520ms linear var(--flap-delay, 0ms) both;
+  }
+  .hero-route-stub > [aria-hidden="true"] {
+    transform-origin: left center;
+    animation: landing-route-draw 320ms ease-out 900ms both;
+  }
+}
+@keyframes departure-flap {
+  0%,
+  12% {
+    transform: translateY(-80%);
+  }
+  22%,
+  36% {
+    transform: translateY(-60%);
+  }
+  46%,
+  60% {
+    transform: translateY(-40%);
+  }
+  70%,
+  84% {
+    transform: translateY(-20%);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+@keyframes landing-route-draw {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* Auth screens own their paper canvas; other application routes keep their frame. */
+#main-content:has(> .auth-screen) {
+  max-width: none;
+  padding: 0;
+}
+
+#main-content:has(> .journey-screen) {
+  max-width: none;
+  padding: 0;
+  background: var(--paper);
+}
+.journey-screen {
+  min-height: 100dvh;
+  padding-bottom: calc(7rem + env(safe-area-inset-bottom));
+}
+.journey-input[type="date"],
+.journey-input[type="time"] {
+  appearance: none;
+  color-scheme: light;
+}
+.journey-input::-webkit-date-and-time-value {
+  text-align: left;
+}
+
+#main-content:has(> .search-screen) {
+  max-width: none;
+  padding: 0;
+}
+.search-screen {
+  min-height: 100dvh;
+  padding-bottom: calc(7rem + env(safe-area-inset-bottom));
+}
+.search-screen:has(.filter-pending) .search-results {
+  display: none;
+}
+
+#main-content:has(> .dashboard-screen) {
+  max-width: none;
+  padding: 0;
+}
+.dashboard-screen {
+  min-height: 100dvh;
+  padding-bottom: calc(7rem + env(safe-area-inset-bottom));
+}
+/* Preserve each button's resting color: dashboard cards have no hover effects. */
+.dashboard-screen button.bg-signal:hover {
+  background-color: var(--signal);
+}
+.dashboard-screen button.bg-transparent:hover {
+  background-color: transparent;
+}
+.dashboard-screen .dashboard-cancel {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+.journey-history-card {
+  background-color: rgb(var(--sage-rgb) / 0.08);
+}
+.journey-history-card > div,
+.journey-history-card > p {
+  color: var(--deep);
+}
+.journey-history-card .request-route {
+  color: var(--deep);
+}
+.journey-history-card [class*="bg-signal"] {
+  background-color: rgb(var(--sage-rgb) / 0.15);
+  border-color: var(--sage);
+}
+.request-route > [aria-hidden="true"] {
+  position: relative;
+}
+.match-accepted .request-route > [aria-hidden="true"]::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 50%;
+  border-top: 2px solid var(--signal);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .match-drawing .request-route > [aria-hidden="true"]::after {
+    animation: dashboard-match-draw 0.75s ease-out both;
+  }
+}
+@keyframes dashboard-match-draw {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+#main-content:has(> .inbox-screen) {
+  max-width: none;
+  padding: 0;
+}
+.inbox-screen {
+  min-height: 100dvh;
+  padding-bottom: calc(7rem + env(safe-area-inset-bottom));
+}
+.chat-surface :focus-visible {
+  outline-color: var(--deep);
+}
+.chat-header :focus-visible {
+  outline-color: var(--signal);
+}
+
+#main-content:has(> .admin-screen) {
+  max-width: none;
+  padding: 0;
+}
+.admin-screen {
+  min-height: 100dvh;
+  padding-bottom: calc(7rem + env(safe-area-inset-bottom));
+}
+.admin-screen :focus-visible {
+  outline-color: var(--deep);
+}
+.admin-screen header :focus-visible {
+  outline-color: var(--signal);
+}
+
+/* Surface-aware muted text: one sage cannot meet 4.5:1 on both ink and paper. */
+.bg-ink {
+  --sage: var(--sage-on-ink);
+  --sage-rgb: var(--sage-on-ink-rgb);
+  --focus-ring: var(--paper);
+}
+.bg-paper {
+  --sage: var(--sage-on-paper);
+  --sage-rgb: var(--sage-on-paper-rgb);
+  --focus-ring: var(--deep);
+}
+/* Solid muted/error surfaces need light labels after the contrast correction. */
+.bg-sage,
+.bg-danger {
+  color: var(--paper);
+}
+
+/* Keep focus inside horizontal scrolling regions, rather than clipping the ring. */
+[role="tablist"] :focus-visible,
+.admin-screen form :focus-visible,
+.admin-screen nav :focus-visible {
+  outline-offset: -3px;
+}
+
+/* Two-tone inset frame remains visible over arbitrary image pixels. */
+.chat-image-trigger {
+  position: relative;
+}
+.chat-image-trigger:focus-visible {
+  outline: none;
+}
+.chat-image-trigger:focus-visible::after {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border: 2px solid var(--paper);
+  outline: 2px solid var(--ink);
+  border-radius: var(--radius-control);
+  pointer-events: none;
+}
+
+#main-content:has(> .home-screen) {
+  max-width: none;
+  padding: 0;
+}
+.home-screen {
+  min-height: 100dvh;
+  padding-bottom: calc(6rem + env(safe-area-inset-bottom));
+}
+.home-screen .home-compact-card {
+  padding: var(--space-3);
+  border: 1px solid rgb(var(--sage-rgb) / 0.2);
+  border-radius: var(--radius-card);
+}
+
+/* Quiet tactile feedback, limited to intentional primary actions. */
+@media (prefers-reduced-motion: no-preference) {
+  [data-press="primary"] {
+    transition: transform 110ms ease-out;
+  }
+  [data-press="primary"]:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+  .first-moment {
+    animation: first-moment 650ms ease-out 1;
+  }
+  .skeleton-surface::after {
+    animation: skeleton-shimmer 1800ms linear infinite;
+  }
+}
+@keyframes first-moment {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgb(var(--signal-rgb) / 0);
+  }
+  40% {
+    transform: scale(1.012);
+    box-shadow: 0 0 0 5px rgb(var(--signal-rgb) / 0.12);
+  }
+}
+.skeleton-surface {
+  position: relative;
+  overflow: hidden;
+}
+.skeleton-surface::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    100deg,
+    transparent 30%,
+    rgb(var(--paper-rgb) / 0.65) 50%,
+    transparent 70%
+  );
+  transform: translateX(-100%);
+}
+@keyframes skeleton-shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+/* Static, low-opacity grain only on the hero and focused chat header. */
+.ink-grain {
+  position: relative;
+  isolation: isolate;
+}
+.ink-grain::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Cpath fill='%23fff' filter='url(%23n)' d='M0 0h180v180H0z'/%3E%3C/svg%3E");
+}
+
+/* Keep keyboard outlines inside the scrollable handover disclosure. */
+.chat-handover :focus-visible {
+  outline-offset: -3px;
+}
+
+/* Floating navigation: route highlight is the only transition besides press feedback. */
+.floating-nav {
+  position: fixed;
+  z-index: 20;
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 480px;
+  padding: 6px;
+  border-radius: 999px;
+  border: 1px solid rgb(var(--sage-rgb) / 0.3);
+  background: rgb(var(--ink-rgb) / 0.78);
+  color: var(--paper);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 8px 24px rgb(var(--ink-rgb) / 0.22);
+}
+.floating-nav-list {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.floating-nav-item {
+  position: relative;
+  flex: 0 0 44px;
+  min-width: 44px;
+}
+.floating-nav-item.is-active {
+  flex: 1 1 auto;
+}
+.floating-nav-highlight {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 999px;
+  background: rgb(var(--signal-rgb) / 0.18);
+  pointer-events: none;
+}
+.floating-nav-link {
+  display: flex;
+  height: 48px;
+  min-width: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border-radius: 999px;
+  color: var(--paper);
+}
+.floating-nav-link[aria-current] {
+  color: var(--signal);
+}
+.floating-nav-label {
+  font-size: 11px;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+.nav-post-icon {
+  display: inline-flex;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgb(var(--signal-rgb) / 0.14);
+  color: var(--signal);
+}
+.nav-unread-dot {
+  position: absolute;
+  right: -3px;
+  top: -3px;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--signal);
+}
+.floating-nav .floating-nav-logout {
+  width: 44px;
+  height: 48px;
+  padding: 0;
+  border-radius: 999px;
+  color: var(--paper);
+  background: transparent;
+}
+.floating-nav-link:focus-visible,
+.floating-nav .floating-nav-logout:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: -3px;
+  box-shadow: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .floating-nav-highlight {
+    transition: transform 240ms ease-out;
+  }
+}

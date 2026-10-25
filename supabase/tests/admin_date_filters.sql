@@ -1,0 +1,33 @@
+BEGIN;
+DO $$ DECLARE a uuid:=gen_random_uuid(); b uuid:=gen_random_uuid(); j uuid; q uuid;
+BEGIN
+ INSERT INTO auth.users(id,email,raw_user_meta_data) SELECT id,id::text||'@example.invalid','{"name":"Admin filter test","is_adult_confirmed":true}'::jsonb FROM unnest(ARRAY[a,b]) id;
+ UPDATE public.profiles SET role='admin',created_at='2097-01-01 23:59:59+00' WHERE id=a;
+ UPDATE public.profiles SET created_at='2097-01-02 00:00:00+00' WHERE id=b;
+ INSERT INTO public.journeys(traveller_id,from_city,to_city,travel_date,travel_time,item_type) SELECT a,'Filter A','Filter B','2097-01-01','12:00','document' FROM generate_series(1,21);
+ SELECT id INTO j FROM public.journeys WHERE traveller_id=a LIMIT 1;
+ INSERT INTO public.requests(journey_id,sender_id,status,created_at) VALUES(j,b,'accepted','2097-01-01 23:59:59+00') RETURNING id INTO q;
+ INSERT INTO public.message_reports(request_id,reporter_id,reason,created_at) VALUES(q,b,'Date filter test','2097-01-01 23:59:59+00');
+ PERFORM set_config('test.admin',a::text,true); PERFORM set_config('test.user',b::text,true);
+ PERFORM set_config('request.jwt.claim.sub',a::text,true);
+END $$;
+SET LOCAL ROLE authenticated;
+DO $$ DECLARE result jsonb;
+BEGIN
+ result:=public.admin_list_filtered('journeys','active',1,'2097-01-01','2097-01-01');
+ IF (result->>'total')::int <> 21 OR jsonb_array_length(result->'rows') <> 20 THEN RAISE EXCEPTION 'Date filter count or page incorrect'; END IF;
+ result:=public.admin_list_filtered('journeys','active',2,'2097-01-01','2097-01-01');
+ IF jsonb_array_length(result->'rows') <> 1 THEN RAISE EXCEPTION 'Second page incorrect'; END IF;
+ result:=public.admin_list_filtered('users','active',1,'2097-01-01','2097-01-01');
+ IF (result->>'total')::int <> 1 THEN RAISE EXCEPTION 'UTC date boundaries incorrect'; END IF;
+ result:=public.admin_list_filtered('requests','accepted',1,'2097-01-01','2097-01-01');
+ IF (result->>'total')::int <> 1 THEN RAISE EXCEPTION 'Request date filter incorrect'; END IF;
+ result:=public.admin_reports_filtered('open',1,'2097-01-01','2097-01-01');
+ IF (result->>'total')::int <> 1 THEN RAISE EXCEPTION 'Report date filter incorrect'; END IF;
+ result:=public.admin_reports_filtered('open',1,'2097-01-02','2097-01-02');
+ IF (result->>'total')::int <> 0 THEN RAISE EXCEPTION 'Report outside date range included'; END IF;
+ PERFORM set_config('request.jwt.claim.sub',current_setting('test.user'),true);
+ BEGIN PERFORM public.admin_list_filtered('users'); RAISE EXCEPTION 'Non-admin permitted'; EXCEPTION WHEN insufficient_privilege THEN NULL; END;
+ BEGIN PERFORM public.admin_reports_filtered(); RAISE EXCEPTION 'Non-admin reports permitted'; EXCEPTION WHEN insufficient_privilege THEN NULL; END;
+END $$;
+ROLLBACK;
